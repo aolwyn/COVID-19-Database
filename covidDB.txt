@@ -1,0 +1,181 @@
+drop database covidDB;
+create database covidDB;
+
+CREATE TABLE Company(
+CName		VARCHAR(25)	NOT NULL,
+CStreet		VARCHAR(25),
+CCity		VARCHAR(15),
+CProvince	VARCHAR(25),
+CPC		VARCHAR(10),
+PRIMARY KEY(CNAME));
+
+CREATE TABLE VaccineLot(
+Lot			INTEGER		NOT NULL,
+ExpiryDate		DATE		NOT NULL,
+ProductionDate		DATE		NOT NULL,
+Doses			INTEGER,
+Company			VARCHAR(25),
+PRIMARY KEY (Lot),
+FOREIGN KEY(Company) REFERENCES Company(CName));
+
+CREATE TABLE VaccinationSite( 
+VName	VARCHAR(25)		NOT NULL,
+VStreet		VARCHAR(20),
+VCity		VARCHAR(15),
+VProvince	VARCHAR(25),
+VPC		VARCHAR(10),
+PRIMARY KEY(VName));
+
+CREATE TABLE Spouse(
+SOHIP 	CHAR(12)	NOT NULL,
+FName	VARCHAR(20),
+LName	VARCHAR(20),
+SPhone	VARCHAR(15),
+PRIMARY KEY(SOHIP));
+
+
+CREATE TABLE Patient(
+POHIP 	CHAR(12)	NOT NULL,
+FName	VARCHAR(20),
+LName	VARCHAR(20),
+PDOB	DATE		NOT NULL,
+SOHIP	CHAR(12),
+PRIMARY KEY (POHIP),
+FOREIGN KEY (SOHIP) REFERENCES Spouse(SOHIP));
+
+CREATE TABLE Vaccinate(
+POHIP        CHAR(12)    NOT NULL,
+ClinicName    VARCHAR(25)    NOT NULL,
+Date        DATE,
+LotID        INTEGER,
+PRIMARY KEY(POHIP, ClinicName),
+FOREIGN KEY(POHIP) REFERENCES Patient(POHIP),
+FOREIGN KEY(ClinicName) REFERENCES VaccinationSite(VName));
+
+
+/*-----------------------------------------*/
+CREATE TABLE HealthcareWorker(
+HID		CHAR(10)	NOT NULL,
+HWFirstName	VARCHAR(20),
+HWLastName	VARCHAR(20),
+PRIMARY KEY(HID));	
+
+CREATE TABLE Practice(
+PName	VARCHAR(20)	NOT NULL,
+PPhone	VARCHAR(15),
+PRIMARY KEY(PName));
+
+CREATE TABLE Doctor(
+DID	CHAR(10)	NOT NULL,
+WName	VARCHAR(20)	NOT NULL,
+PRIMARY KEY(DID),
+FOREIGN KEY(WName) REFERENCES Practice (PName),
+FOREIGN KEY(DID) REFERENCES HealthcareWorker(HID));
+
+CREATE TABLE Nurse(
+NID	CHAR(10)	NOT NULL,
+PRIMARY KEY(NID),
+FOREIGN KEY(NID) REFERENCES HealthcareWorker(HID));
+
+CREATE TABLE StaffedBy(
+EID	CHAR(12)	NOT NULL,
+VName	VARCHAR(25)	NOT NULL,
+PRIMARY KEY (EID, VName),
+FOREIGN KEY(EID) REFERENCES HealthcareWorker(HID),
+FOREIGN KEY(VName) REFERENCES VaccinationSite(VName));
+
+CREATE TABLE Credentials(
+Type		CHAR(10)	NOT NULL,
+Credential	VARCHAR(15)	NOT NULL,
+PRIMARY KEY(Type, Credential),
+FOREIGN KEY(Type) REFERENCES HealthcareWorker(HID));
+
+CREATE TABLE DistributionDates(
+DistDate	DATE		NOT NULL,
+Location	VARCHAR(20)	NOT NULL,
+Site		INTEGER		NOT NULL,
+PRIMARY KEY(DistDate, Location),
+FOREIGN KEY(Location) REFERENCES VaccinationSite(VName),
+FOREIGN KEY(Site) REFERENCES VaccineLot(Lot));
+
+/*-----------------------------------------*/
+
+insert into Company values
+('Pfizer','38 Charles St.','Toronto','Ontario','M4Y319'),
+('Moderna', '32 Ace Ln.','Newly','NY','3F5W01'),
+('Astrazeneca','16 Beta Dr.','Humble','Texas','Q1DE3K'),
+('Johnson & Johnson','69 Rice Dr.','Houston','Texas','K7LQ2W');
+
+insert into VaccineLot values
+(201,'2021-06-11','2021-04-11',2048,'Moderna'),
+(111,'2022-02-01','2021-12-30',2000,'Astrazeneca'),
+(69,'2022-01-30','2021-11-16',15000,'Pfizer');
+
+
+insert into VaccinationSite values
+('Hockey Arena','1 Toronto St.','Toronto','Ontario',NULL),
+('Shipped to Home',NULL,NULL,NULL,'K7Q1W4'),
+('Methodist Church','2 Princess St.','Kingston','Ontario','K1D3KF');
+
+insert into Spouse values
+('3213555666FK','Charles','Xavier',NULL),
+('3210222111YG','Elizabeth','Armstrong',4165323320),
+('5467888999AQ','Misty',NULL,NULL);
+
+insert into Patient values
+('1234567890AS','Jemal','Johnson','1997-10-06',NULL),
+('1234565432FG','Kayte','Toews','2001-09-12','3213555666FK'),
+('0987654321ED','James','White','1970-01-10','3210222111YG'),
+('12345654325E','Perry','Platypus','1993-04-25','3210222111YG'),
+('6785940323TD','Francis','Xavier','1940-03-03','5467888999AQ');
+
+insert into Vaccinate values
+('1234567890AS','Hockey Arena','2020-02-01',201),
+('1234565432FG','Hockey Arena','2021-02-01',201),
+('0987654321ED','Shipped to Home','2022-02-01',111),
+('12345654325E','Methodist Church','2022-01-01',69),
+('6785940323TD','Methodist Church','2021-04-05',69);
+
+insert into HealthcareWorker values
+('1234567890','James','Stewart'),
+('0987654321','Andrew','Smith'),
+('5674839201','Taylor','Swift'),
+('9090875432','Caroline','Dare'),
+('1234543200','Anson','Seabra');
+
+insert into Practice values
+('First Medical',4166504450),
+('Seattle Grace',NULL),
+('West General',3124560098);
+
+insert into Doctor values
+('1234567890','Seattle Grace'),
+('0987654321','West General'),
+('5674839201','First Medical');
+
+insert into Nurse values
+('9090875432'),
+('1234543200');
+
+insert into StaffedBy values
+('1234567890','Hockey Arena'),
+('0987654321','Hockey Arena'),
+('5674839201','Methodist Church'),
+('9090875432','Shipped to Home'),
+('1234543200','Hockey Arena');
+
+insert into Credentials values
+('1234567890','Research Center'),
+('0987654321','Laboratory'),
+('5674839201','ER'),
+('9090875432','Triage'),
+('1234543200','Welcome Desk');
+
+insert into DistributionDates values
+('2020-06-10','Hockey Arena',201),
+('2020-06-11','Shipped to Home',111),
+('2021-01-02','Methodist Church',69);
+
+
+
+
